@@ -319,13 +319,19 @@ resource "aws_lambda_function" "pre_token_generation" {
 }
 
 resource "aws_cognito_user_pool" "users" {
-  name = "ImageAppUsers"
+  name = "image-pipeline-users"
 
-  username_attributes      = ["email"]
+  username_attributes = ["email"]
+
   auto_verified_attributes = ["email"]
 
   lambda_config {
     pre_token_generation = aws_lambda_function.pre_token_generation.arn
+
+    pre_token_generation_config {
+      lambda_arn     = aws_lambda_function.pre_token_generation.arn
+      lambda_version = "V2_0"
+    }
   }
 }
 
@@ -631,6 +637,14 @@ locals {
   ]
 }
 
+locals {
+  content_types = {
+    html = "text/html"
+    css  = "text/css"
+    js   = "application/javascript"
+  }
+}
+
 resource "aws_s3_object" "website_files" {
 
   for_each = toset(local.website_files)
@@ -642,4 +656,10 @@ resource "aws_s3_object" "website_files" {
   source = "../website/${each.value}"
 
   etag = filemd5("../website/${each.value}")
+
+  content_type = lookup(
+    local.content_types,
+    reverse(split(".", each.value))[0],
+    "application/octet-stream"
+  )
 }

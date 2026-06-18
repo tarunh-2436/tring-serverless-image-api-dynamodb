@@ -1,2 +1,10 @@
 def lambda_handler(event, context):
-    return {}
+
+    event["response"]["claimsAndScopeOverrideDetails"] = {
+        "idTokenGeneration": {"claimsToAddOrOverride": {"userType": "AUTHENTICATED"}},
+        "accessTokenGeneration": {
+            "claimsToAddOrOverride": {"userType": "AUTHENTICATED"}
+        },
+    }
+
+    return event
