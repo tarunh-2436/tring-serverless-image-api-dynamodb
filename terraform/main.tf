@@ -27,6 +27,30 @@ resource "aws_s3_bucket_public_access_block" "uploads" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_cors_configuration" "upload_bucket_cors" {
+
+  bucket = aws_s3_bucket.uploads.id
+
+  cors_rule {
+
+    allowed_headers = ["*"]
+
+    allowed_methods = [
+      "PUT",
+      "GET",
+      "HEAD"
+    ]
+
+    allowed_origins = [
+      "*"
+    ]
+
+    expose_headers = ["ETag"]
+
+    max_age_seconds = 3000
+  }
+}
+
 resource "aws_s3_bucket" "website" {
   bucket        = var.website_bucket_name
   force_destroy = true
@@ -143,7 +167,8 @@ resource "aws_iam_policy" "api_lambda_policy" {
       Effect = "Allow"
 
       Action = [
-        "s3:PutObject"
+        "s3:PutObject",
+        "s3:GetObject"
       ]
 
       Resource = "${aws_s3_bucket.uploads.arn}/*"
@@ -209,6 +234,17 @@ resource "aws_iam_policy" "processor_lambda_policy" {
       Resource = [
         "${aws_s3_bucket.uploads.arn}/*"
       ]
+      },
+      {
+        Effect = "Allow"
+
+        Action = [
+          "s3:ListBucket"
+        ]
+
+        Resource = [
+          aws_s3_bucket.uploads.arn
+        ]
       },
       {
         Effect = "Allow"
@@ -385,6 +421,23 @@ resource "aws_cognito_user_pool_client" "client" {
 resource "aws_apigatewayv2_api" "image_api" {
   name          = "ImageAPI"
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = [
+      "*"
+    ]
+
+    allow_methods = [
+      "GET",
+      "POST",
+      "OPTIONS"
+    ]
+
+    allow_headers = [
+      "authorization",
+      "content-type"
+    ]
+  }  
 }
 
 resource "aws_apigatewayv2_authorizer" "jwt" {

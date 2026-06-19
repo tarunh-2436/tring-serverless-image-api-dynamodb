@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime, timezone
-
+from urllib.parse import unquote_plus
 import boto3
 
 s3 = boto3.client("s3")
@@ -18,7 +18,15 @@ def lambda_handler(event, context):
     print(json.dumps(event))
 
     for record in event["Records"]:
-        process_record(record)
+        try:
+            body = json.loads(record["body"])
+            if "Records" not in body:
+                print("Skipping S3 test event")
+                continue
+            process_record(record)
+        except Exception as error:
+            print(f"Failed to process record: {error}")
+            raise
 
     return {"statusCode": 200, "body": json.dumps({"message": "Processing complete"})}
 
@@ -30,7 +38,10 @@ def process_record(record):
     s3_record = body["Records"][0]
 
     bucket = s3_record["s3"]["bucket"]["name"]
+
     key = s3_record["s3"]["object"]["key"]
+
+    key = unquote_plus(key)
 
     print(f"Processing {bucket}/{key}")
 
@@ -38,9 +49,9 @@ def process_record(record):
 
     parts = key.split("/")
 
-    user_id = parts[0]
-    image_id = parts[1]
-    filename = parts[2]
+    user_id = parts[1]
+    image_id = parts[2]
+    filename = parts[3]
 
     metadata = s3.head_object(Bucket=bucket, Key=key)
 

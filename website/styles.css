@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 40px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  text-align: left;
+}
+
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  min-width: 400px;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-image {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px auto;
+  object-fit: contain;
+}
+
+.hidden {
+  display: none;
+}

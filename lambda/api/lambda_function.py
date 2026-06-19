@@ -1,3 +1,4 @@
+from fileinput import filename
 import json
 import uuid
 import os
@@ -67,7 +68,7 @@ def create_image(event):
             "userId": user_id,
             "imageId": image_id,
             "filename": filename,
-            "status": "PENDING_UPLOAD",
+            "status": "PENDING",
             "createdAt": timestamp,
             "updatedAt": timestamp,
         }
@@ -77,7 +78,7 @@ def create_image(event):
         "put_object",
         Params={
             "Bucket": UPLOAD_BUCKET,
-            "Key": f"{user_id}/{image_id}/{filename}",
+            "Key": f"uploads/{user_id}/{image_id}/{filename}",
             "ContentType": content_type,
         },
         ExpiresIn=900,
@@ -95,6 +96,7 @@ def list_images(event):
         IndexName="CreatedAtIndex",
         KeyConditionExpression="userId = :userId",
         ExpressionAttributeValues={":userId": user_id},
+        ScanIndexForward=False,
     )
 
     images = []
@@ -128,4 +130,20 @@ def get_image(event):
     if "Item" not in dynamodb_response:
         return response(404, {"message": "Image not found"})
 
-    return response(200, {"image": dynamodb_response["Item"]})
+    item = dynamodb_response["Item"]
+
+    filename = item.get("filename")
+
+    if not filename:
+        return response(500, {"message": "Image record is missing filename"})
+
+    download_url = s3.generate_presigned_url(
+        "get_object",
+        Params={
+            "Bucket": UPLOAD_BUCKET,
+            "Key": f"uploads/{user_id}/{image_id}/{filename}",
+        },
+        ExpiresIn=3600,
+    )
+
+    return response(200, {"image": item, "downloadUrl": download_url})

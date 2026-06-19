@@ -1,23 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>Image API Test</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <h1>Image API Test</h1>
+    <title>Tring Image Processing API</title>
 
-    <button onclick="login()">Login</button>
-    <button onclick="logout()">Logout</button>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-    <hr>
+  <body>
+    <div class="container">
+      <h1>Tring Image Processing API</h1>
 
-    <button onclick="showToken()">Show Access Token</button>
+      <section class="card">
+        <h2>Authentication</h2>
 
-    <pre id="output"></pre>
+        <p id="loginStatus">🔴 Logged Out</p>
+
+        <button onclick="login()">Login</button>
+
+        <button onclick="logout()">Logout</button>
+      </section>
+
+      <section class="card">
+        <h2>Upload Image</h2>
+
+        <input type="file" id="imageFile" accept="image/*" />
+
+        <br /><br />
+
+        <img
+          id="uploadPreview"
+          src=""
+          alt="Preview"
+          style="max-width: 300px; display: none"
+        />
+
+        <button onclick="uploadImage()">Upload</button>
+
+        <p id="uploadStatus"></p>
+      </section>
+
+      <section class="card">
+        <h2>My Images</h2>
+
+        <button onclick="loadImages()">Refresh Images</button>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Filename</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="imagesTableBody"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="imageModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Image Details</h2>
+
+        <div id="imageDetails"></div>
+
+        <button onclick="closeModal()">Close</button>
+      </div>
+    </div>
 
     <script src="config.js"></script>
     <script src="scripts.js"></script>
-
-</body>
+  </body>
 </html>
